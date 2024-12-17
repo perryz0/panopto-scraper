@@ -1,2 +1,2 @@
 # panopto-scraper
-Reverse-engineered Panopticlone chrome extension to bypass download restrictions on Panopto, for personal use...
+Chrome extension to bypass download restrictions on Panopto (not for commercial use)
