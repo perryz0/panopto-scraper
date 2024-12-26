@@ -1,58 +1,61 @@
-import puppeteer from 'puppeteer';
+import { parseArgs } from 'node:util';
+import { scrapeFinalUrls } from './scraper';
+import { downloadVideos, mergeVideos } from './downloader';
 import fs from 'fs';
-import readline from 'readline';
 
-// Create a terminal input interface
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
+async function main() {
+  const args = parseArgs({
+    options: {
+      output: { type: 'string', short: 'o', default: 'output.mp4' },
+      crf: { type: 'string', default: '23' },
+      x265: { type: 'boolean', default: false },
+      keepOriginals: { type: 'boolean', default: false },
+    },
+    allowPositionals: true,
+  });
 
-async function run() {
-    // Ask user for the video URL
-    rl.question('Please enter the Panopto video URL: ', async (url) => {
-        // Launch Puppeteer with a visible browser
-        const browser = await puppeteer.launch({ headless: false });
-        const page = await browser.newPage();
+  const { positionals, values } = args;
+  const [folderUrl] = positionals;
+  const { output, crf, x265, keepOriginals } = values;
 
-        // Load cookies if available
-        const cookiesFilePath = './cookies.json';
-        if (fs.existsSync(cookiesFilePath)) {
-            const cookies = JSON.parse(fs.readFileSync(cookiesFilePath, 'utf-8'));
-            await page.setCookie(...cookies);
-            console.log('Loaded session cookies.');
-        } else {
-            console.log('No cookies found. Please log in manually.');
-        }
+  if (!folderUrl) {
+    console.error('Error: No folder URL provided.');
+    process.exit(1);
+  }
 
-        // Enable request interception
-        await page.setRequestInterception(true);
+  const tempDir = './temp';
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir);
+  }
 
-        // Intercept and log requests
-        page.on('request', (req) => {
-            console.log(`Request URL: ${req.url()}`);
-            req.continue();
-        });
+  try {
+    // Step 1: Scrape video URLs from the folder
+    console.log('Scraping video URLs...');
+    const videoUrls = await scrapeFinalUrls(folderUrl);
 
-        // Navigate to the URL
-        await page.goto(url);
+    // Step 2: Download each video
+    const videoFiles = [];
+    for (const videoUrl of videoUrls) {
+      console.log(`Downloading video: ${videoUrl}`);
+      const filename = await downloadVideos(videoUrl, tempDir);
+      videoFiles.push(filename);
+    }
 
-        // Wait for manual login if needed
-        if (!fs.existsSync(cookiesFilePath)) {
-            console.log('Please log in manually. Once logged in, press ENTER to continue.');
-            rl.question('', async () => {
-                // Save cookies after login
-                const cookies = await page.cookies();
-                fs.writeFileSync(cookiesFilePath, JSON.stringify(cookies, null, 2));
-                console.log('Session cookies saved.');
-            });
-        }
+    // Step 3: Merge videos
+    console.log('Merging videos...');
+    await mergeVideos(videoFiles, output, { crf: parseInt(crf), x265, keepOriginals });
 
-        // Close the browser and terminal input
-        await browser.close();
-        rl.close();
-    });
+    console.log(`Merged video saved to ${output}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  } finally {
+    if (!keepOriginals && fs.existsSync(tempDir)) {
+      fs.rmdirSync(tempDir, { recursive: true });
+    }
+  }
 }
 
-// Run the script
-run();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
