@@ -1,29 +1,27 @@
 import puppeteer from 'puppeteer';
-// Or import puppeteer from 'puppeteer-core';
 
-// Launch the browser and open a new blank page
-const browser = await puppeteer.launch({ headless: false });
-const page = await browser.newPage();
-
-// Navigate the page to a URL.
-await page.goto('https://developer.chrome.com/');
-
-// Set screen size.
-await page.setViewport({width: 1080, height: 1024});
-
-// Type into search box.
-await page.locator('.devsite-search-field').fill('automate beyond recorder');
-
-// Wait and click on first result.
-await page.locator('.devsite-result-item-link').click();
-
-// Locate the full title with a unique string.
-const textSelector = await page
-  .locator('text/Customize and automate')
-  .waitHandle();
-const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
-// Print the full title.
-console.log('The title of this blog post is "%s".', fullTitle);
-
-await browser.close();
+export async function scrapeFinalUrls(folderUrl: string): Promise<string[]> {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+  
+    try {
+      await page.goto(folderUrl, { waitUntil: 'networkidle2' });
+  
+      // Extract all video URLs from the folder
+      const videoUrls = await page.evaluate(() => {
+        const links = Array.from(document.querySelectorAll('a.video-link')); // Adjust selector
+        return links
+          .map((link) => link.getAttribute('href'))
+          .filter((url): url is string => url !== null); // Type guard to filter out null values
+      });
+  
+      if (!videoUrls.length) {
+        throw new Error('No video URLs found on the folder page.');
+      }
+  
+      return videoUrls;
+    } finally {
+      await browser.close();
+    }
+  }
+  
