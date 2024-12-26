@@ -1,6 +1,6 @@
 import { parseArgs } from 'node:util';
-import { scrapeFinalUrls } from './scraper';
-import { downloadVideos, mergeVideos } from './downloader';
+import { scrapeFinalUrls } from './scraper.js';
+import { downloadVideos, mergeVideos } from './downloader.js';
 import fs from 'fs';
 
 async function main() {
