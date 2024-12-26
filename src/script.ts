@@ -1,29 +1,58 @@
 import puppeteer from 'puppeteer';
-// Or import puppeteer from 'puppeteer-core';
+import fs from 'fs';
+import readline from 'readline';
 
-// Launch the browser and open a new blank page
-const browser = await puppeteer.launch({ headless: false });
-const page = await browser.newPage();
+// Create a terminal input interface
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
 
-// Navigate the page to a URL.
-await page.goto('https://developer.chrome.com/');
+async function run() {
+    // Ask user for the video URL
+    rl.question('Please enter the Panopto video URL: ', async (url) => {
+        // Launch Puppeteer with a visible browser
+        const browser = await puppeteer.launch({ headless: false });
+        const page = await browser.newPage();
 
-// Set screen size.
-await page.setViewport({width: 1080, height: 1024});
+        // Load cookies if available
+        const cookiesFilePath = './cookies.json';
+        if (fs.existsSync(cookiesFilePath)) {
+            const cookies = JSON.parse(fs.readFileSync(cookiesFilePath, 'utf-8'));
+            await page.setCookie(...cookies);
+            console.log('Loaded session cookies.');
+        } else {
+            console.log('No cookies found. Please log in manually.');
+        }
 
-// Type into search box.
-await page.locator('.devsite-search-field').fill('automate beyond recorder');
+        // Enable request interception
+        await page.setRequestInterception(true);
 
-// Wait and click on first result.
-await page.locator('.devsite-result-item-link').click();
+        // Intercept and log requests
+        page.on('request', (req) => {
+            console.log(`Request URL: ${req.url()}`);
+            req.continue();
+        });
 
-// Locate the full title with a unique string.
-const textSelector = await page
-  .locator('text/Customize and automate')
-  .waitHandle();
-const fullTitle = await textSelector?.evaluate(el => el.textContent);
+        // Navigate to the URL
+        await page.goto(url);
 
-// Print the full title.
-console.log('The title of this blog post is "%s".', fullTitle);
+        // Wait for manual login if needed
+        if (!fs.existsSync(cookiesFilePath)) {
+            console.log('Please log in manually. Once logged in, press ENTER to continue.');
+            rl.question('', async () => {
+                // Save cookies after login
+                const cookies = await page.cookies();
+                fs.writeFileSync(cookiesFilePath, JSON.stringify(cookies, null, 2));
+                console.log('Session cookies saved.');
+            });
+        }
 
-await browser.close();
+        // Close the browser and terminal input
+        await browser.close();
+        rl.close();
+    });
+}
+
+// Run the script
+run();
