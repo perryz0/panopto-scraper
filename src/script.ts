@@ -47,7 +47,11 @@ async function main() {
 
     console.log(`Merged video saved to ${output}`);
   } catch (error) {
-    console.error('Error:', error.message);
+    if (error instanceof Error) {
+      console.error('Error:', error.message);
+    } else {
+      console.error('Unknown error:', error);
+    }
   } finally {
     if (!keepOriginals && fs.existsSync(tempDir)) {
       fs.rmdirSync(tempDir, { recursive: true });
