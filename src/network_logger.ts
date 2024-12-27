@@ -2,42 +2,30 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import readline from 'readline';
 
-// Create a terminal input interface
+// RL for processing terminal inputs
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
 
 async function run() {
-    // Ask user for the video URL
-    rl.question('Please enter the Panopto video URL: ', async (url) => {
+    // Pass in the URL to inspect/intercept network requests
+    rl.question('Please enter the media URL: ', async (url) => {
         const browser = await puppeteer.launch({ headless: false });
         const page = await browser.newPage();
 
         const cookiesFilePath = './cookies.json';
 
-        // Load cookies if available
-        if (fs.existsSync(cookiesFilePath)) {
-            const cookies = JSON.parse(fs.readFileSync(cookiesFilePath, 'utf-8'));
-            await page.setCookie(...cookies);
-            console.log('Loaded session cookies.');
-        } else {
-            console.log('No cookies found. Please log in manually.');
-        }
-
-        // Enable request interception
+        // Enable request interception, then log all requests
         await page.setRequestInterception(true);
-
-        // Log all network requests
         page.on('request', (req) => {
             console.log(`Request URL: ${req.url()}`);
             req.continue();
         });
 
-        // Navigate to the URL
         await page.goto(url);
 
-        // Wait for the user to log in manually if no cookies are available
+        // Manual log in.
         if (!fs.existsSync(cookiesFilePath)) {
             console.log('Please log in manually. Once logged in, press ENTER to continue.');
 
@@ -57,5 +45,4 @@ async function run() {
     });
 }
 
-// Run the script
 run();
