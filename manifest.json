@@ -1,22 +1,26 @@
 {
-    "manifest_version": 3,
-    "name": "Panopto Scraper",
-    "version": "1.0.0",
-    "description": "Chrome extension to bypass download restrictions on Panopto (not for commercial use).",
-    "permissions": ["downloads", "activeTab", "scripting"],
-    "host_permissions": ["https://*.panopto.com/*"],
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": "icon.png"
-    },
-    "content_scripts": [
-      {
-        "matches": ["https://*.panopto.com/*"],
-        "js": ["content.js"]
-      }
-    ],
-    "background": {
-      "service_worker": "background.js"
+  "manifest_version": 3,
+  "name": "Panopto Scraper",
+  "version": "1.0.0",
+  "description": "Chrome extension to download Panopto lecture recordings for offline use (non-commercial).",
+  "permissions": ["downloads", "activeTab", "scripting"],
+  "host_permissions": ["https://*.panopto.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.panopto.com/*"],
+      "js": ["content.js"]
     }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
   }
-  
+}
