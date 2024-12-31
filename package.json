@@ -21,6 +21,7 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.287",
     "@types/fluent-ffmpeg": "^2.1.27"
   }
 }
