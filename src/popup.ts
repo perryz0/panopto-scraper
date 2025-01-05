@@ -9,6 +9,8 @@
  * - Initiates download requests for individual or all sessions.
  */
 
+
+
 /**
  * Creates the popup header with the folder name and a "Download All" button.
  * @param folderName - The name of the Panopto folder.

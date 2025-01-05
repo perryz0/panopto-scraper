@@ -9,6 +9,8 @@
  * - Orchestrates communication between popup and content scripts.
  */
 
+
+
 /**
  * Normalizes file or folder names by replacing invalid characters.
  * @param name - The input string to normalize.
@@ -25,7 +27,7 @@ function normalizeName(name: string): string {
  */
 function createChromeNotification(message: string, title: string = "Panopto Scraper"): void {
   chrome.notifications.create({
-    iconUrl: "PLACEHOLDER",        // TODO: change this into the real path of the extension icons
+    iconUrl: "../icons/icon_64.png",
     message,
     title,
     type: "basic",
