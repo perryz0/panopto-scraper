@@ -15,79 +15,79 @@
  * @returns A normalized string with invalid characters replaced.
  */
 function normalizeName(name: string): string {
-    return name.replace(/[ ,;:\/\\\.]/g, "_").replace(/(-|_)+/g, "_");
-  }
+  return name.replace(/[ ,;:\/\\\.]/g, "_").replace(/(-|_)+/g, "_");
+}
   
-  /**
-   * Creates a Chrome notification with the specified message and title.
-   * @param message - The notification message.
-   * @param title - The notification title (optional, defaults to "Panopto Scraper").
-   */
-  function createChromeNotification(message: string, title: string = "Panopto Scraper"): void {
-    chrome.notifications.create({
-      iconUrl: "PLACEHOLDER",        // TODO: change this into the real path of the extension icons
-      message,
-      title,
-      type: "basic",
+/**
+ * Creates a Chrome notification with the specified message and title.
+ * @param message - The notification message.
+ * @param title - Notification title, defaults to "Panopto Scraper".
+ */
+function createChromeNotification(message: string, title: string = "Panopto Scraper"): void {
+  chrome.notifications.create({
+    iconUrl: "PLACEHOLDER",        // TODO: change this into the real path of the extension icons
+    message,
+    title,
+    type: "basic",
+  });
+}
+  
+/**
+ * Initiates download process for the given video sessions.
+ * @param sessions - An array of session objects with download details.
+ */
+function processDownloadQueue(sessions: Session[]): void {
+  for (const session of sessions) {
+    const folderName = normalizeName(session.folderName);
+    const sessionName = normalizeName(session.sessionName);
+    const filename = `${Math.round(session.date / 1000)}-${sessionName}.mp4`;
+
+    // Send a Chrome download request
+    chrome.downloads.download({
+      url: session.videoURL,
+      filename: `${folderName}/${filename}`,
+      conflictAction: "prompt", // Prompts if file exists
+      method: "GET",
     });
+
+    // Notify user about the download initiation
+    createChromeNotification(`Started downloading: "${session.sessionName}"`);
   }
+}
   
-  /**
-   * Initiates the download process for the given Panopto video sessions.
-   * @param sessions - An array of session objects with download details.
-   */
-  function processDownloadQueue(sessions: Session[]): void {
-    for (const session of sessions) {
-      const folderName = normalizeName(session.folderName);
-      const sessionName = normalizeName(session.sessionName);
-      const filename = `${Math.round(session.date / 1000)}-${sessionName}.mp4`;
-  
-      // Send a Chrome download request
-      chrome.downloads.download({
-        url: session.videoURL,
-        filename: `${folderName}/${filename}`,
-        conflictAction: "prompt", // Prompts if file exists
-        method: "GET",
-      });
-  
-      // Notify user about the download initiation
-      createChromeNotification(`Started downloading: "${session.sessionName}"`);
-    }
+/**
+ * Handles incoming messages and routes them to the appropriate function.
+ * @param message - The received message object.
+ * @param sender - The sender of the message.
+ * @param sendResponse - The function to send a response (if applicable).
+ */
+function handleMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): void {
+  if (message.downloadQueue) {
+    processDownloadQueue(message.downloadQueue);
   }
+}
+
+/**
+ * Registers the background script to listen for messages.
+ */
+function initializeBackgroundService(): void {
+  chrome.runtime.onMessage.addListener(handleMessage);
+}
   
-  /**
-   * Handles incoming messages and routes them to the appropriate function.
-   * @param message - The received message object.
-   * @param sender - The sender of the message.
-   * @param sendResponse - The function to send a response (if applicable).
-   */
-  function handleMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): void {
-    if (message.downloadQueue) {
-      processDownloadQueue(message.downloadQueue);
-    }
-  }
+
   
-  /**
-   * Registers the background script to listen for messages.
-   */
-  function initializeBackgroundService(): void {
-    chrome.runtime.onMessage.addListener(handleMessage);
-  }
-  
-  /**
-   * Types for Panopto session data and message structure.
-   */
-  interface Session {
-    folderName: string;
-    sessionName: string;
-    videoURL: string;
-    date: number;
-  }
-  
-  interface Message {
-    downloadQueue?: Session[];
-  }
-  
-  // Initialize the background service
-  initializeBackgroundService();
-  
+/** TYPES */
+
+interface Session {
+  folderName: string;
+  sessionName: string;
+  videoURL: string;
+  date: number;
+}
+
+interface Message {
+  downloadQueue?: Session[];
+}
+
+// Initialize the background service
+initializeBackgroundService();

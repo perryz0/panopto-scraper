@@ -1,7 +1,6 @@
 /**
  * @file content.ts
- * @description Acts as the content script for the extension, interacting with 
- *              Panopto web pages to extract relevant session data.
+ * @description Interacts with Panopto web pages to extract relevant session data.
  * @authors Perry Chien <peichi1@uw.edu>
  * 
  * Features:
@@ -65,7 +64,7 @@ async function parseSessions(url: string): Promise<void> {
 }
 
 /**
- * Message handler, responds by parsing the video URLs for current session.
+ * Message handler that parses video URLs for current session.
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.parseURL) {
