@@ -4,7 +4,9 @@
   "description": "Chrome extension to bypass download restrictions on Panopto (not for commercial use)",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
+    
   },
   "keywords": [],
   "author": "",
