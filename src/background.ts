@@ -63,7 +63,7 @@ function processDownloadQueue(sessions: Session[]): void {
  * @param sender - The sender of the message.
  * @param sendResponse - The function to send a response (if applicable).
  */
-function handleMessage(message: Message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): void {
+function handleMessage(message: Message, _sender: chrome.runtime.MessageSender, _sendResponse: (response?: any) => void): void {
   if (message.downloadQueue) {
     processDownloadQueue(message.downloadQueue);
   }

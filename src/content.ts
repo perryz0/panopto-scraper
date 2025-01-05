@@ -66,7 +66,7 @@ async function parseSessions(url: string): Promise<void> {
 /**
  * Message handler that parses video URLs for current session.
  */
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
   if (message.parseURL) {
     parseSessions(message.parseURL);
   }
