@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panopto Scraper</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    #session-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #fff;
+    }
+    .session-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .session-entry:last-child {
+      border-bottom: none;
+    }
+    button {
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #007bff;
+      color: white;
+    }
+    #error-message {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="heading-container">
+    <h2>Loading...</h2>
+    <div class="button-container">
+      <button id="download-all">Download All</button>
+    </div>
+  </div>
+  <div id="session-list">
+    <!-- Sessions are dynamically rendered here -->
+  </div>
+  <p id="error-message" hidden></p>
+  <script src="popup.js"></script>
+</body>
+</html>
