@@ -19,15 +19,14 @@ chmod +x setup.sh
 ```bash
 # Open Chrome, go to chrome://extensions
 # Enable Developer Mode (top right)
-# Click Load unpacked
-# Drag the entire folder into the tab
+# Drag the folder /out/pan-scraper* into the Chrome tab
 ```
 
 ### 4. Visit any Panopto video catalog page
 
 ```bash
 # Verify you're on the right page, check if URL has `folderID`
-# Click the Extensions icon on the top bar, then start downloading videos
+# Click the Extensions icon on the top bar, then download videos
 ```
 
 
