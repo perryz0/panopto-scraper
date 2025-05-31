@@ -95,11 +95,13 @@ function parseSessionData(response: PanoptoResponse): Session[] {
     const videoURL = video.IosVideoUrl?.replace(/\\/g, "") || 
       `${video.ViewerUrl.split("Panopto")[0]}Panopto/Podcast/Embed/${video.DeliveryID}.mp4`;
 
+    const dateMatch = video.StartTime.match(/Date\(([0-9]+)\)/i);
     return {
       folderName: video.FolderName,
       sessionName: video.SessionName,
       videoURL,
-      date: parseInt(video.StartTime.match(/Date\(([0-9]+)\)/i)![1], 10),
+      date: dateMatch ? parseInt(dateMatch[1], 10) : Date.now(),
+      DeliveryID: video.DeliveryID
     };
   }).sort((a, b) => b.date - a.date); // Sort by date descending
 }
@@ -145,6 +147,7 @@ interface Session {
   sessionName: string;
   videoURL: string;
   date: number;
+  DeliveryID?: string;
 }
 
 interface PanoptoResponse {

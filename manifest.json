@@ -3,7 +3,7 @@
   "name": "Panopto Scraper",
   "version": "1.0.0",
   "description": "Chrome extension to download Panopto lecture recordings for offline use (non-commercial).",
-  "permissions": ["downloads", "activeTab", "scripting"],
+  "permissions": ["downloads", "activeTab", "scripting", "notifications"],
   "host_permissions": ["https://*.panopto.com/*"],
   "action": {
     "default_popup": "popup.html",
